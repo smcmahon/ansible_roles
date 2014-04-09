@@ -1,0 +1,38 @@
+# this config needs haproxy-1.1.28 or haproxy-1.2.1
+
+global
+    log /dev/log   syslog notice
+    maxconn 4096
+    #chroot /usr/share/haproxy
+    user haproxy
+    group haproxy
+    daemon
+    #debug
+    #quiet
+
+defaults
+    log     global
+    mode    http
+    option  httplog
+    option  dontlognull
+    retries 3
+    option redispatch
+    maxconn 2000
+    contimeout      5000
+    clitimeout      50000
+    srvtimeout      50000
+    option httpchk
+
+listen admin
+    bind *:{{ admin_port|default(1080) }}
+    stats enable
+    stats uri /admin
+    stats auth haproxy:{{ admin_secret|default('notsosecret') }}
+
+{% if (listen_name is defined) and (listen_port is defined) and (clients is defined) %}
+listen {{ listen_name }} *:{{ listen_port }}
+    balance hdr(x-forwarded-for)
+    {% for client in clients %}
+    server {{ client.name }} localhost:{{ client.port }} check rise 1 maxqueue 10 maxconn 2
+    {% endfor %}
+{% endif %}

@@ -1,0 +1,13 @@
+---
+
+- name: Munin-Node package present
+  apt: pkg=munin-node state=present
+
+- name: Configure munin-node
+  template:
+    src=munin-node.conf.j2
+    dest=/etc/munin/munin-node.conf
+    owner=root
+    group=root
+    mode=644
+  notify: restart munin-node

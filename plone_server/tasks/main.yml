@@ -1,0 +1,93 @@
+---
+
+# - name: Ensure base directory
+#   file:
+#     path={{ base_dir}}
+#     state=directory
+
+# - name: Python virtualenv
+#   command: /usr/local/bin/virtualenv --python=python{{ python_version }} --no-setuptools {{ base_dir }}/Python-{{ python_version }}
+#     creates={{ base_dir }}/Python-{{ python_version }}
+
+# - name: check for buildout-cache
+#   stat: path={{ base_dir }}/buildout-cache
+#   register: cache_status
+
+# - name: Unpack buildout-cache
+#   unarchive:
+#     src=buildout-cache.tar.bz2
+#     dest={{ base_dir }}
+#     owner=plone_buildout
+#     group=plone_group
+#   when: not (cache_status.stat.isdir is defined and cache_status.stat.isdir == true)
+
+# - name: Set buildout cache owner
+#   file:
+#     path={{ base_dir }}/buildout-cache
+#     owner=plone_buildout
+#     group=plone_group
+#     recurse=yes
+#   when: not (cache_status.stat.isdir is defined and cache_status.stat.isdir == true)
+
+# - name: Instance directory
+#   file:
+#     path={{ base_dir }}/{{ instance_name }}
+#     state=directory
+#     owner=plone_buildout
+#     group=plone_group
+
+# - name: Instance var directory
+#   file:
+#     path={{ base_dir }}/{{ instance_name }}/var
+#     state=directory
+#     owner=plone_buildout
+#     group=plone_group
+#     mode=02770
+
+# # - name: var mode
+# #     command: chmod -R 2770 {{ base_dir }}/{{ instance_name }}/var
+
+# - name: buildout base files
+#   copy:
+#     src=instance/
+#     dest={{ base_dir}}/{{ instance_name }}
+#     backup=yes
+#     owner=plone_buildout
+#     group=plone_group
+
+# - name: buildout.cfg
+#   template:
+#     src=buildout.cfg.j2
+#     dest={{ base_dir}}/{{ instance_name }}/buildout.cfg
+#     backup=yes
+#     owner=plone_buildout
+#     group=plone_group
+#     mode=600
+
+# - name: bootstrap buildout
+#   command: sudo -u plone_buildout ../Python-2.7/bin/python bootstrap.py
+#     creates={{ base_dir }}/{{ instance_name }}/bin/buildout
+#     chdir={{ base_dir }}/{{ instance_name }}
+#     # I don't know why sudo_user doesn't work for this
+
+# - name: run buildout
+#   command: sudo -u plone_buildout bin/buildout
+#     chdir={{ base_dir }}/{{ instance_name }}
+
+- name: Backup cron job
+  cron:
+    name="Plone backup"
+    job="cd {{ base_dir }}/{{ instance_name }} && {{ base_dir }}/{{ instance_name }}/bin/backup"
+    user=plone_daemon
+    minute="20"
+    hour=1
+
+- name: Pack cron job
+  cron:
+    name="Plone packing"
+    job="cd {{ base_dir }}/{{ instance_name }} && {{ base_dir }}/{{ instance_name }}/bin/zeopack"
+    user=plone_daemon
+    minute="30"
+    hour=1
+
+

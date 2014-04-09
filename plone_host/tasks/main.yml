@@ -1,0 +1,48 @@
+---
+
+# Ensures basic users, groups for a Plone server
+
+- name: Ensure plone_group
+  group: name=plone_group
+
+- name: Ensure plone_daemon
+  user:
+    name=plone_daemon
+    group=plone_group
+    shell=/usr/bin/nologin
+    createhome=no
+
+- name: Ensure plone_buildout
+  user:
+    name=plone_buildout
+    group=plone_group
+
+# - name: buildout config directory
+#   file:
+#     path=/home/plone_buildout/.buildout
+#     owner=plone_buildout
+#     state=directory
+
+# - name: Ensure buildout config
+#   copy:
+#     src=buildout_default.cfg
+#     dest=/home/plone_buildout/.buildout/default.cfg
+#     owner=plone_buildout
+
+# - name: buildout eggs directory
+#   file:
+#     path=/home/plone_buildout/.buildout/eggs
+#     owner=plone_buildout
+#     state=directory
+
+# - name: buildout download directory
+#   file:
+#     path=/home/plone_buildout/.buildout/downloads
+#     owner=plone_buildout
+#     state=directory
+
+# - name: buildout eggs directory
+#   file:
+#     path=/home/plone_buildout/.buildout/extends
+#     owner=plone_buildout
+#     state=directory
