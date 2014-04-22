@@ -11,9 +11,6 @@
     group=root
     mode=644
 
-- name: haproxy started
-  service: name=haproxy state=started
-
 - name: haproxy config
   template:
     src=haproxy.cfg.j2
@@ -23,6 +20,9 @@
     mode=644
     backup=true
   sudo: yes
+
+- name: haproxy started
+  service: name=haproxy state=started
 
 - name: reload haproxy
   service: name=haproxy state=reloaded

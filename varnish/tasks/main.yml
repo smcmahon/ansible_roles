@@ -1,0 +1,12 @@
+---
+
+- name: varnish package present
+  apt: pkg=varnish state=present
+
+
+- name: default.vcl
+  template:
+    src=default.vcl.j2
+    dest=/etc/varnish/default.vcl
+    backup=yes
+  notify: restart varnish
