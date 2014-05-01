@@ -7,7 +7,7 @@
 
 - name: nginx config
   template:
-    src=default.conf.j2 dest=/etc/nginx/sites-enabled/default
+    src=default.conf.j2 dest=/etc/nginx/sites-available/default
     mode=644
     backup=yes
   notify: restart nginx

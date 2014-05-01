@@ -36,6 +36,14 @@
     owner=plone_buildout
     group=plone_group
 
+- name: Instance directory via git
+  git:
+    repo={{ buildout_repo }}
+    force=no
+    dest={{ base_dir }}/{{ instance_name }}
+  sudo_user: plone_buildout
+  register: buildout_base
+
 - name: Instance var directory
   file:
     path={{ base_dir }}/{{ instance_name }}/var
@@ -47,35 +55,36 @@
 # # - name: var mode
 # #     command: chmod -R 2770 {{ base_dir }}/{{ instance_name }}/var
 
-- name: buildout base files
-  copy:
-    src=instance/
-    dest={{ base_dir}}/{{ instance_name }}
-    backup=yes
-    owner=plone_buildout
-    group=plone_group
-  register: buildout_base
+# - name: buildout base files
+#   copy:
+#     src=instance/
+#     dest={{ base_dir}}/{{ instance_name }}
+#     backup=yes
+#     owner=plone_buildout
+#     group=plone_group
+#   register: buildout_base
 
-- name: buildout.cfg
-  template:
-    src=buildout.cfg.j2
-    dest={{ base_dir}}/{{ instance_name }}/buildout.cfg
-    backup=yes
-    owner=plone_buildout
-    group=plone_group
-    mode=600
-  register: buildout_cfg
+# - name: buildout.cfg
+#   template:
+#     src=buildout.cfg.j2
+#     dest={{ base_dir}}/{{ instance_name }}/buildout.cfg
+#     backup=yes
+#     owner=plone_buildout
+#     group=plone_group
+#     mode=600
+#   register: buildout_cfg
 
 - name: bootstrap buildout
-  command: sudo -u plone_buildout ../Python-2.7/bin/python bootstrap.py
+  command: ../Python-2.7/bin/python bootstrap.py
     creates={{ base_dir }}/{{ instance_name }}/bin/buildout
     chdir={{ base_dir }}/{{ instance_name }}
-    # I don't know why sudo_user doesn't work for this
+  sudo_user: plone_buildout
 
 - name: run buildout
-  command: sudo -u plone_buildout bin/buildout
+  command: bin/buildout
     chdir={{ base_dir }}/{{ instance_name }}
-  when: buildout_cfg.changed or buildout_base.changed
+  when: buildout_base.changed or force_buildout
+  sudo_user: plone_buildout
 
 - name: Backup cron job
   cron:
