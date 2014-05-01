@@ -1,0 +1,18 @@
+---
+
+- name: apache2 package present
+  apt:
+    pkg=apache2
+    state=present
+
+- name: Disable unneeded apache modules
+  apache2_module: state=absent name={{ item }}
+  with_items:
+    - auth_basic
+    - authn_file
+    - authz_host
+    - authz_core
+    - authz_user
+    - autoindex
+    - setenvif
+    - status
